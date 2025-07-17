@@ -18,6 +18,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useConversations } from "@/hooks/useConversations";
 import { useMessages } from "@/hooks/useMessages";
 import { useSendMessage } from '@/hooks/useSendMessage';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 // Import the Conversation type from the hook
 type Conversation = {
@@ -240,7 +241,7 @@ export default function MessagesPage() {
               </div>
             ) : (
               filteredConversations.map((conversation) => (
-                <motion.div
+                <MotionDiv
                   key={conversation.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -297,7 +298,7 @@ export default function MessagesPage() {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </MotionDiv>
               ))
             )}
           </div>
@@ -376,7 +377,7 @@ export default function MessagesPage() {
                   </div>
                 ) : (
                   conversationMessages.map((message) => (
-                    <motion.div
+                    <MotionDiv
                       key={message.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -415,7 +416,7 @@ export default function MessagesPage() {
                         {formatTime(message?.created_at || "")}
                         </p>
                       </div>
-                    </motion.div>
+                    </MotionDiv>
                   ))
                 )}
                 <div ref={messagesEndRef} />

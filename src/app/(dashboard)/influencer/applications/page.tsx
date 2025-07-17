@@ -15,6 +15,7 @@ import SubmitWork from '@/components/influencer/SubmitWork';
 import AnalyticsSubmissionForm from '@/components/campaign-analytics/AnalyticsSubmissionForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Search, Filter, Calendar, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Eye, MessageCircle, FileText, Upload, Download, TrendingUp, Users } from 'lucide-react';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 export default function ApplicationsPage() {
   const { user } = useAuth();
@@ -146,7 +147,7 @@ export default function ApplicationsPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -159,9 +160,9 @@ export default function ApplicationsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -174,9 +175,9 @@ export default function ApplicationsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -189,9 +190,9 @@ export default function ApplicationsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -204,9 +205,9 @@ export default function ApplicationsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -219,7 +220,7 @@ export default function ApplicationsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Search and Filters */}
@@ -245,7 +246,7 @@ export default function ApplicationsPage() {
         </div>
 
         {showFilters && (
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -296,14 +297,14 @@ export default function ApplicationsPage() {
                 </SelectContent>
               </Select>
             </div>
-          </motion.div>
+          </MotionDiv>
         )}
       </div>
 
       {/* Applications List */}
       <div className="space-y-4">
         {sortedApplications.map((application, index) => (
-          <motion.div
+          <MotionDiv
             key={application.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -528,7 +529,7 @@ export default function ApplicationsPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         ))}
       </div>
 

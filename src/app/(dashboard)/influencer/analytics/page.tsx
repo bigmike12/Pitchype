@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/client'
 import { useCampaignAnalytics } from '@/hooks/useCampaignAnalytics'
+import { useApplications } from '@/hooks/useApplications'
 import AnalyticsSubmissionForm from '@/components/campaign-analytics/AnalyticsSubmissionForm'
 import AnalyticsVerificationCard from '@/components/campaign-analytics/AnalyticsVerificationCard'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,8 +17,6 @@ import { toast } from 'sonner'
 export default function InfluencerAnalyticsPage() {
   const { user, userProfile, loading } = useAuth()
   const router = useRouter()
-  const [applications, setApplications] = useState<any[]>([])
-  const supabase = createClient()
   
   // Use the campaign analytics hook
   const {
@@ -28,7 +27,13 @@ export default function InfluencerAnalyticsPage() {
     refetch: refetchAnalytics
   } = useCampaignAnalytics({ influencerId: user?.id })
   
-  if (loading || analyticsLoading) {
+  // Use the applications hook to get accepted applications
+  const {
+    applications,
+    loading: applicationsLoading
+  } = useApplications({ influencerId: user?.id })
+  
+  if (loading || analyticsLoading || applicationsLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -43,7 +48,8 @@ export default function InfluencerAnalyticsPage() {
     return null
   }
   
-  const availableApplications = applications
+  // Filter for accepted applications that can submit analytics
+  const availableApplications = applications?.filter(app => app.status === 'approved') || []
   
   // Use stats from the hook
   const {
@@ -150,17 +156,17 @@ export default function InfluencerAnalyticsPage() {
                           <div className="flex justify-between items-start mb-3">
                             <div>
                               <h4 className="font-medium text-gray-900">
-                                {(application.campaigns as any)?.title}
+                                {(application.campaign as any)?.title}
                               </h4>
                               <p className="text-sm text-gray-600">
-                                {(application.campaigns as any)?.business_profiles?.company_name}
+                                {(application.campaign as any)?.business_profiles?.company_name}
                               </p>
                             </div>
                             <Badge variant="outline">Accepted</Badge>
                           </div>
                           <AnalyticsSubmissionForm 
                             applicationId={application.id}
-                            campaignId={(application.campaigns as any)?.id || ''}
+                            campaignId={(application.campaign as any)?.id || ''}
                           />
                         </CardContent>
                       </Card>

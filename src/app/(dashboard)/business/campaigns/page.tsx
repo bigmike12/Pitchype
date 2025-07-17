@@ -35,6 +35,7 @@ import Link from "next/link";
 import { useCampaigns } from "@/hooks/useCampaigns";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { MotionDiv } from "@/components/performance/LazyMotion";
 
 interface Campaign {
   id: string;
@@ -268,7 +269,7 @@ export default function CampaignsPage() {
       {/* Campaigns Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCampaigns.map((campaign, index) => (
-          <motion.div
+          <MotionDiv
             key={campaign.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -343,7 +344,7 @@ export default function CampaignsPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         ))}
       </div>
 

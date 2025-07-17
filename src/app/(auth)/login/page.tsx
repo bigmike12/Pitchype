@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,14 +30,16 @@ import {
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { clearAllAuthStorage, useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const { signIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [userType, setUserType] = useState<"business" | "influencer" | "admin">("business");
+  const [userType, setUserType] = useState<"business" | "influencer">(
+    "business"
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -42,27 +50,64 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
-      
+      const { error, data } = await signIn(email, password);
+
       if (error) {
-        toast.error(error.message || 'Failed to sign in');
+        toast.error(error.message || "Failed to sign in");
         setIsLoading(false);
         return;
       }
 
-      toast.success('Successfully signed in!');
-      
-      // Redirect based on user role (will be handled by auth state change)
-      if (userType === 'business') {
-        router.push('/business/');
-      } else if (userType === 'influencer') {
-        router.push('/influencer/');
-      } else if (userType === 'admin') {
-        router.push('/admin');
+      const loggedInUserType = data?.user?.user_metadata?.user_role as
+        | "business"
+        | "influencer"
+        | "admin";
+
+      if (loggedInUserType !== userType) {
+        toast.error("Selected wrong account type!");
+        clearAllAuthStorage();
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Successfully signed in!");
+
+      if (loggedInUserType === "business") {
+        router.push("/business/");
+      } else if (loggedInUserType === "influencer") {
+        router.push("/influencer/");
+      } else if (loggedInUserType === "admin") {
+        router.push("/admin");
       }
     } catch (error) {
-      toast.error('An unexpected error occurred');
-    } finally {
+      toast.error("An unexpected error occurred");
+      setIsLoading(false);
+    }
+  };
+
+  // Optional: Add role validation before sign in
+  const handleSubmitWithValidation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await signIn(email, password);
+
+      if (error) {
+        toast.error(error.message || "Failed to sign in");
+        setIsLoading(false);
+        return;
+      }
+
+      // Wait a moment for the auth context to update with user profile
+      setTimeout(() => {
+        // The auth context will handle the redirect based on actual user role
+        // If you want to validate the role matches selection, you can add logic here
+        toast.success("Successfully signed in!");
+        setIsLoading(false);
+      }, 100);
+    } catch (error) {
+      toast.error("An unexpected error occurred");
       setIsLoading(false);
     }
   };
@@ -88,18 +133,32 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* User Role Selection */}
-          <Tabs value={userType} onValueChange={(value) => setUserType(value as "business" | "influencer" | "admin")}>
+          {/* User Role Selection - Optional: You can remove this if not needed */}
+          <Tabs
+            value={userType}
+            onValueChange={(value) =>
+              setUserType(value as "business" | "influencer")
+            }
+          >
             <TabsList className="grid w-full grid-cols-3 bg-gray-100">
-              <TabsTrigger value="business" className="flex items-center space-x-2">
+              <TabsTrigger
+                value="business"
+                className="flex items-center space-x-2"
+              >
                 <Building2 className="h-4 w-4" />
                 <span>Business</span>
               </TabsTrigger>
-              <TabsTrigger value="influencer" className="flex items-center space-x-2">
+              <TabsTrigger
+                value="influencer"
+                className="flex items-center space-x-2"
+              >
                 <Users className="h-4 w-4" />
                 <span>Creator</span>
               </TabsTrigger>
-              <TabsTrigger value="admin" className="flex items-center space-x-2">
+              <TabsTrigger
+                value="admin"
+                className="flex items-center space-x-2"
+              >
                 <Shield className="h-4 w-4" />
                 <span>Admin</span>
               </TabsTrigger>
@@ -109,7 +168,10 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <div className="relative">
@@ -128,7 +190,10 @@ export default function LoginPage() {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="relative">
@@ -147,7 +212,11 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -158,7 +227,9 @@ export default function LoginPage() {
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    setRememberMe(checked as boolean)
+                  }
                 />
                 <label htmlFor="remember" className="text-sm text-gray-600">
                   Remember me
@@ -198,17 +269,25 @@ export default function LoginPage() {
               <span className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              <span className="bg-white px-2 text-gray-500">
+                Or continue with
+              </span>
             </div>
           </div>
 
           {/* Social Login */}
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="h-12 border-gray-200 hover:bg-gray-50">
+            <Button
+              variant="outline"
+              className="h-12 border-gray-200 hover:bg-gray-50"
+            >
               <Chrome className="h-4 w-4 mr-2" />
               Google
             </Button>
-            <Button variant="outline" className="h-12 border-gray-200 hover:bg-gray-50">
+            <Button
+              variant="outline"
+              className="h-12 border-gray-200 hover:bg-gray-50"
+            >
               <Facebook className="h-4 w-4 mr-2" />
               Facebook
             </Button>
@@ -225,31 +304,6 @@ export default function LoginPage() {
                 Sign up
               </Link>
             </p>
-          </div>
-
-          {/* Demo Credentials */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="text-center">
-              <h4 className="font-medium text-blue-900 mb-2">Demo Login</h4>
-              <p className="text-sm text-blue-700 mb-3">
-                Use any email and password combination to test the application
-              </p>
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="bg-white rounded p-2 border">
-                  <div className="font-medium text-gray-900">Business</div>
-                  <div className="text-gray-600">business@demo.com</div>
-                </div>
-                <div className="bg-white rounded p-2 border">
-                  <div className="font-medium text-gray-900">Creator</div>
-                  <div className="text-gray-600">creator@demo.com</div>
-                </div>
-                <div className="bg-white rounded p-2 border">
-                  <div className="font-medium text-gray-900">Admin</div>
-                  <div className="text-gray-600">admin@demo.com</div>
-                </div>
-              </div>
-              <p className="text-xs text-blue-600 mt-2">Password: any text</p>
-            </div>
           </div>
 
           {/* Trust Indicators */}

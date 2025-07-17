@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Users, Building2, Target, DollarSign, TrendingUp, TrendingDown, Activity, AlertTriangle, CheckCircle, Clock, Eye, MessageSquare, Star, Calendar, Download, BarChart3, PieChart, UserCheck, UserX, Zap } from 'lucide-react';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface AdminStats {
   overview: {
@@ -317,7 +318,7 @@ export default function AdminDashboard() {
 
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -336,9 +337,9 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -357,9 +358,9 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -376,9 +377,9 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -397,13 +398,13 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Detailed Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* User Metrics */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -444,10 +445,10 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
         {/* Campaign Metrics */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -488,10 +489,10 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
         {/* Financial Metrics */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
@@ -536,13 +537,13 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Recent Activity & Top Performers */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activity */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
@@ -555,7 +556,7 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {recentActivity.map((activity, index) => (
-                  <motion.div
+                  <MotionDiv
                     key={activity.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -589,15 +590,15 @@ export default function AdminDashboard() {
                         )}
                       </div>
                     </div>
-                  </motion.div>
+                  </MotionDiv>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
         {/* Top Performers */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9 }}
@@ -610,7 +611,7 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {topPerformers.map((performer, index) => (
-                  <motion.div
+                  <MotionDiv
                     key={performer.id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -642,16 +643,16 @@ export default function AdminDashboard() {
                       </p>
                       {getGrowthIndicator(performer.growth)}
                     </div>
-                  </motion.div>
+                  </MotionDiv>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Charts Placeholder */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0 }}
@@ -671,10 +672,10 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </MotionDiv>
 
       {/* Quick Actions */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.1 }}
@@ -705,7 +706,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { useSendMessage } from '@/hooks/useSendMessage';
 import { ArrowLeft, Calendar, DollarSign, Eye, Heart, Users, MapPin, MessageCircle, Send, Building2, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import ApplicationModal from '@/components/ApplicationModal';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface Campaign {
   id: string;
@@ -146,7 +147,7 @@ export default function CampaignDetailPage() {
       </div>
 
       {/* Campaign Details */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="grid grid-cols-1 lg:grid-cols-3 gap-6"
@@ -339,7 +340,7 @@ export default function CampaignDetailPage() {
             </CardContent>
           </Card>
         </div>
-      </motion.div>
+      </MotionDiv>
 
       {/* Application Modal */}
        {campaign && (

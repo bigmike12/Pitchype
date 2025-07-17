@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { MotionDiv } from "@/components/performance/LazyMotion";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -43,7 +44,7 @@ export default function ForgotPasswordPage() {
 
   if (isSubmitted) {
     return (
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -120,12 +121,12 @@ export default function ForgotPasswordPage() {
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </MotionDiv>
     );
   }
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -229,6 +230,6 @@ export default function ForgotPasswordPage() {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </MotionDiv>
   );
 }

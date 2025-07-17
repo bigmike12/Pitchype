@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, ThumbsUp, MessageSquare, Clock, Award, User, MoreHorizontal } from 'lucide-react';
 import { useInfluencerReviews } from '@/hooks/useInfluencerReviews';
 import { formatDistanceToNow } from 'date-fns';
+import { MotionDiv } from '../performance/LazyMotion';
 
 interface InfluencerReviewDisplayProps {
   influencerId: string;
@@ -71,7 +72,7 @@ const ReviewItem = ({ review, isOwner, onEdit, onDelete }: ReviewItemProps) => {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="border-b border-gray-200 last:border-b-0 pb-4 last:pb-0"
@@ -140,7 +141,7 @@ const ReviewItem = ({ review, isOwner, onEdit, onDelete }: ReviewItemProps) => {
             )}
             
             {showDetails && (
-              <motion.div
+              <MotionDiv
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="space-y-2 pt-2 border-t border-gray-100"
@@ -173,7 +174,7 @@ const ReviewItem = ({ review, isOwner, onEdit, onDelete }: ReviewItemProps) => {
                 >
                   Hide detailed ratings
                 </Button>
-              </motion.div>
+              </MotionDiv>
             )}
           </div>
         )}
@@ -185,7 +186,7 @@ const ReviewItem = ({ review, isOwner, onEdit, onDelete }: ReviewItemProps) => {
           </div>
         )}
       </div>
-    </motion.div>
+    </MotionDiv>
   );
 };
 

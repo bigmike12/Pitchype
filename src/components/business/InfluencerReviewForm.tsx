@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Star, User, MessageSquare, Clock, Award, ThumbsUp } from 'lucide-react';
 import { useInfluencerReviews } from '@/hooks/useInfluencerReviews';
 import { toast } from 'sonner';
+import { MotionDiv } from '../performance/LazyMotion';
 
 interface InfluencerReviewFormProps {
   campaignId: string;
@@ -159,7 +160,7 @@ export default function InfluencerReviewForm({
   };
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-2xl mx-auto"
@@ -294,6 +295,6 @@ export default function InfluencerReviewForm({
           </form>
         </CardContent>
       </Card>
-    </motion.div>
+    </MotionDiv>
   );
 }

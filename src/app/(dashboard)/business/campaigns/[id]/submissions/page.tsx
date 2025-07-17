@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useSubmissions } from '@/hooks/useSubmissions';
 import { useSubmissionActions } from '@/hooks/useSubmissionActions';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface Submission {
   id: string;
@@ -330,7 +331,7 @@ export default function CampaignSubmissionsPage() {
             filteredSubmissions.map((submission, index) => {
               const StatusIcon = statusIcons[submission.status];
               return (
-                <motion.div
+                <MotionDiv
                   key={submission.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -647,7 +648,7 @@ export default function CampaignSubmissionsPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </MotionDiv>
               );
             })
           )}

@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Mail, MapPin, Globe, Camera, Bell, Shield, CreditCard, Palette, Eye, Lock, Trash2, Save, Plus, X, Instagram, Youtube, Video, Facebook, Twitter, Linkedin, Phone } from 'lucide-react';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface UserProfile {
   id: string;
@@ -466,7 +467,7 @@ export default function SettingsPage() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -648,12 +649,12 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         </TabsContent>
 
         {/* Social Media Tab */}
         <TabsContent value="social" className="space-y-6">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -665,7 +666,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {profile.socialMedia.map((social, index) => (
-                  <motion.div
+                  <MotionDiv
                     key={social.platform}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -698,7 +699,7 @@ export default function SettingsPage() {
                         {social.connected ? 'Disconnect' : 'Connect'}
                       </Button>
                     </div>
-                  </motion.div>
+                  </MotionDiv>
                 ))}
                 
                 <Button variant="outline" className="w-full">
@@ -707,13 +708,13 @@ export default function SettingsPage() {
                 </Button>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         </TabsContent>
 
         {/* Rates & Availability Tab */}
         <TabsContent value="rates" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -773,9 +774,9 @@ export default function SettingsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </MotionDiv>
 
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -877,7 +878,7 @@ export default function SettingsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </MotionDiv>
           </div>
         </TabsContent>
 
@@ -1081,7 +1082,7 @@ export default function SettingsPage() {
 
           {/* Notifications Tab */}
           <TabsContent value="notifications" className="space-y-6">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -1172,13 +1173,13 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         </TabsContent>
 
         {/* Privacy & Security Tab */}
         <TabsContent value="privacy" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -1260,9 +1261,9 @@ export default function SettingsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </MotionDiv>
 
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -1319,7 +1320,7 @@ export default function SettingsPage() {
                   </Button>
                 </CardContent>
               </Card>
-            </motion.div>
+            </MotionDiv>
           </div>
         </TabsContent>
       </Tabs>

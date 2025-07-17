@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { createClient } from '@/lib/client'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
+import { useDebounce } from '@/utils/performance'
 
 interface BankDetails {
   id: string
@@ -50,111 +50,166 @@ interface UseFinancialsOptions {
   limit?: number
 }
 
+// Shared abort controller utility
+const useAbortController = () => {
+  const abortControllerRef = useRef<AbortController | null>(null)
+  
+  const createNewController = useCallback(() => {
+    // Only abort if there's an existing controller
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    abortControllerRef.current = new AbortController()
+    return abortControllerRef.current
+  }, [])
+
+  const cleanup = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+  }, [])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup
+  }, [cleanup])
+
+  return { createNewController, cleanup }
+}
+
+// Shared API utilities
+const createApiRequest = async (
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<any> => {
+  const response = await fetch(endpoint, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    ...options,
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed with status ${response.status}`)
+  }
+
+  return data
+}
+
+const handleError = (err: unknown, defaultMessage: string) => {
+  if (err instanceof Error && err.name === 'AbortError') {
+    return null // Don't show abort errors
+  }
+  
+  const errorMessage = err instanceof Error ? err.message : defaultMessage
+  console.error(defaultMessage, err)
+  return errorMessage
+}
+
+// Main financial hook with comprehensive functionality
 export function useFinancials(options: UseFinancialsOptions = {}) {
   const [bankDetails, setBankDetails] = useState<BankDetails[]>([])
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([])
   const [balance, setBalance] = useState<InfluencerBalance | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
-  const supabase = createClient()
-  const abortControllerRef = useRef<AbortController | null>(null)
 
-  const fetchFinancialData = useCallback(async () => {
+  const { createNewController, cleanup } = useAbortController()
+
+  // Memoize the target influencer ID to prevent unnecessary re-renders
+  const targetInfluencerId = useMemo(() => 
+    options.influencerId || user?.id, 
+    [options.influencerId, user?.id]
+  )
+
+  // Internal fetch function without debouncing
+  const fetchFinancialDataInternal = useCallback(async () => {
     try {
-      // Cancel any existing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-      
-      // Create new abort controller
-      abortControllerRef.current = new AbortController()
-      
+      const controller = createNewController()
       setLoading(true)
       setError(null)
 
-      const influencerId = options.influencerId || user?.id
-      if (!influencerId) {
+      if (!targetInfluencerId) {
+        // Reset data when no influencer ID is available
+        setBankDetails([])
+        setPayoutRequests([])
+        setBalance(null)
         setLoading(false)
         return
       }
 
-      // Check if request was aborted before starting
-      if (abortControllerRef.current.signal.aborted) {
-        return
+      // Build query parameters
+      const params = new URLSearchParams({
+        influencer_id: targetInfluencerId,
+        ...(options.status && { status: options.status }),
+        ...(options.limit && { limit: options.limit.toString() })
+      })
+
+      // Parallel fetch for better performance using API routes
+      const [bankResult, payoutResult, balanceResult] = await Promise.allSettled([
+        // Fetch bank details
+        createApiRequest(`/api/bank-details?${params}`, {
+          signal: controller.signal
+        }),
+
+        // Fetch payout requests with optional filtering
+        createApiRequest(`/api/payouts?${params}`, {
+          signal: controller.signal
+        }),
+
+        // Fetch balance
+        createApiRequest(`/api/financials/balance?influencer_id=${targetInfluencerId}`, {
+          signal: controller.signal
+        })
+      ])
+
+      // Check if request was aborted
+      if (controller.signal.aborted) return
+
+      // Process results
+      if (bankResult.status === 'fulfilled') {
+        setBankDetails(bankResult.value.bankDetails || [])
+      } else if (bankResult.status === 'rejected') {
+        throw bankResult.reason
       }
 
-      // Fetch bank details
-      const { data: bankData, error: bankError } = await supabase
-        .from('influencer_bank_details')
-        .select('*')
-        .eq('influencer_id', influencerId)
-        .order('created_at', { ascending: false })
-
-      if (bankError) throw bankError
-
-      // Check if request was aborted before continuing
-      if (abortControllerRef.current.signal.aborted) {
-        return
+      if (payoutResult.status === 'fulfilled') {
+        setPayoutRequests(payoutResult.value.payoutRequests || [])
+      } else if (payoutResult.status === 'rejected') {
+        throw payoutResult.reason
       }
 
-      // Fetch payout requests
-      let payoutQuery = supabase
-        .from('payout_requests')
-        .select(`
-          *,
-          bank_details:influencer_bank_details(
-            bank_name,
-            account_holder_name,
-            account_type
-          )
-        `)
-        .eq('influencer_id', influencerId)
-        .order('created_at', { ascending: false })
-
-      if (options.status) {
-        payoutQuery = payoutQuery.eq('status', options.status)
+      if (balanceResult.status === 'fulfilled') {
+        setBalance(balanceResult.value.balance || null)
+      } else if (balanceResult.status === 'rejected') {
+        throw balanceResult.reason
       }
 
-      if (options.limit) {
-        payoutQuery = payoutQuery.limit(options.limit)
-      }
-
-      const { data: payoutData, error: payoutError } = await payoutQuery
-      if (payoutError) throw payoutError
-
-      // Check if request was aborted before continuing
-      if (abortControllerRef.current.signal.aborted) {
-        return
-      }
-
-      // Fetch influencer balance
-      const { data: balanceData, error: balanceError } = await supabase
-        .from('influencer_balances')
-        .select('*')
-        .eq('influencer_id', influencerId)
-        .single()
-
-      if (balanceError && balanceError.code !== 'PGRST116') throw balanceError
-
-      setBankDetails(bankData || [])
-      setPayoutRequests(payoutData || [])
-      setBalance(balanceData)
     } catch (err) {
-      // Don't set error if request was aborted
-      if (err instanceof Error && err.name === 'AbortError') {
-        return
-      }
-      
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch financial data'
-      setError(errorMessage)
-      console.error('Error fetching financial data:', err)
+      const errorMessage = handleError(err, 'Failed to fetch financial data')
+      if (errorMessage) setError(errorMessage)
     } finally {
       setLoading(false)
     }
-  }, [options.influencerId, options.status, options.limit, user?.id, supabase])
+  }, [targetInfluencerId, options.status, options.limit])
 
-  const addBankDetails = async (bankData: {
+  // Debounced version to prevent excessive API calls
+  const fetchFinancialData = useDebounce(fetchFinancialDataInternal, 300)
+
+  // Effect to trigger data fetching when dependencies change
+  useEffect(() => {
+    if (targetInfluencerId) {
+      fetchFinancialData()
+    }
+  }, [targetInfluencerId, options.status, options.limit, fetchFinancialData])
+
+  // Optimized mutation functions with optimistic updates
+  const addBankDetails = useCallback(async (bankData: {
     bank_name: string
     account_holder_name: string
     account_number: string
@@ -163,76 +218,55 @@ export function useFinancials(options: UseFinancialsOptions = {}) {
     is_primary?: boolean
   }) => {
     try {
-      const response = await fetch('/api/bank-details', {
+      const data = await createApiRequest('/api/bank-details', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(bankData),
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to add bank details')
-      }
-
       toast.success('Bank details added successfully')
-      await fetchFinancialData()
+      
+      // Optimistic update
+      setBankDetails(prev => [data.bankDetails, ...prev])
+      
       return data.bankDetails
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to add bank details'
       toast.error(errorMessage)
       throw err
     }
-  }
+  }, [])
 
-  const updateBankDetails = async (
+  const updateBankDetails = useCallback(async (
     id: string,
     updates: Partial<BankDetails>
   ) => {
     try {
-      const response = await fetch('/api/bank-details', {
+      const data = await createApiRequest('/api/bank-details', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ id, ...updates }),
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update bank details')
-      }
-
       toast.success('Bank details updated successfully')
-      await fetchFinancialData()
+      
+      // Optimistic update
+      setBankDetails(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b))
+      
       return data.bankDetails
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update bank details'
       toast.error(errorMessage)
+      // Revert optimistic update on error
+      await fetchFinancialData()
       throw err
     }
-  }
+  }, [fetchFinancialData])
 
-  const deleteBankDetails = async (id: string) => {
+  const deleteBankDetails = useCallback(async (id: string) => {
     try {
-      const response = await fetch('/api/bank-details', {
+      await createApiRequest('/api/bank-details', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ id }),
       })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to delete bank details')
-      }
 
       toast.success('Bank details deleted successfully')
       setBankDetails(prev => prev.filter(b => b.id !== id))
@@ -241,51 +275,40 @@ export function useFinancials(options: UseFinancialsOptions = {}) {
       toast.error(errorMessage)
       throw err
     }
-  }
+  }, [])
 
-  const requestPayout = async (payoutData: {
+  const requestPayout = useCallback(async (payoutData: {
     amount: number
     bank_details_id: string
   }) => {
     try {
-      const response = await fetch('/api/payouts', {
+      const data = await createApiRequest('/api/payouts', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify(payoutData),
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to request payout')
-      }
-
       toast.success('Payout request submitted successfully')
-      await fetchFinancialData()
+      
+      // Optimistic update
+      setPayoutRequests(prev => [data.payoutRequest, ...prev])
+      
       return data.payoutRequest
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to request payout'
       toast.error(errorMessage)
       throw err
     }
-  }
+  }, [])
 
-  const updatePayoutStatus = async (
+  const updatePayoutStatus = useCallback(async (
     id: string,
     status: PayoutRequest['status'],
     adminNotes?: string,
     transactionId?: string
   ) => {
     try {
-      const response = await fetch('/api/payouts', {
+      const data = await createApiRequest('/api/payouts', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
           id,
           status,
@@ -294,37 +317,29 @@ export function useFinancials(options: UseFinancialsOptions = {}) {
         }),
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update payout status')
-      }
-
       toast.success(`Payout ${status} successfully`)
-      await fetchFinancialData()
+      
+      // Optimistic update
+      setPayoutRequests(prev => prev.map(p => 
+        p.id === id ? { ...p, status, admin_notes: adminNotes, transaction_id: transactionId } : p
+      ))
+      
       return data.payoutRequest
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update payout'
       toast.error(errorMessage)
+      // Revert optimistic update on error
+      await fetchFinancialData()
       throw err
     }
-  }
+  }, [fetchFinancialData])
 
-  const cancelPayoutRequest = async (id: string) => {
+  const cancelPayoutRequest = useCallback(async (id: string) => {
     try {
-      const response = await fetch('/api/payouts', {
+      await createApiRequest('/api/payouts', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ id }),
       })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to cancel payout request')
-      }
 
       toast.success('Payout request cancelled successfully')
       setPayoutRequests(prev => prev.filter(p => p.id !== id))
@@ -333,35 +348,46 @@ export function useFinancials(options: UseFinancialsOptions = {}) {
       toast.error(errorMessage)
       throw err
     }
-  }
+  }, [])
 
+  // Initialize loading state properly
   useEffect(() => {
-    fetchFinancialData()
-    
-    // Cleanup function
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
+    if (!targetInfluencerId) {
+      setLoading(false)
+      setBankDetails([])
+      setPayoutRequests([])
+      setBalance(null)
+      setError(null)
+    } else {
+      fetchFinancialData()
     }
-  }, [fetchFinancialData])
+    
+    return cleanup
+  }, [targetInfluencerId, fetchFinancialData, cleanup])
 
-  // Calculate stats
-  const stats = {
-    totalBankAccounts: bankDetails.length,
-    verifiedAccounts: bankDetails.filter(b => b.is_verified).length,
-    primaryAccount: bankDetails.find(b => b.is_primary),
-    availableBalance: balance?.available_balance || 0,
-    pendingBalance: balance?.pending_balance || 0,
-    totalEarned: balance?.total_earned || 0,
-    totalWithdrawn: balance?.total_withdrawn || 0,
-    pendingPayouts: payoutRequests.filter(p => p.status === 'pending').length,
-    completedPayouts: payoutRequests.filter(p => p.status === 'completed').length,
-    totalPayoutAmount: payoutRequests
-      .filter(p => p.status === 'completed')
-      .reduce((sum, p) => sum + p.amount, 0),
-    recentPayouts: payoutRequests.slice(0, 5),
-  }
+  // Memoized stats calculation
+  const stats = useMemo(() => {
+    const verifiedAccounts = bankDetails.filter(b => b.is_verified)
+    const primaryAccount = bankDetails.find(b => b.is_primary)
+    const pendingPayouts = payoutRequests.filter(p => p.status === 'pending')
+    const completedPayouts = payoutRequests.filter(p => p.status === 'completed')
+    const totalPayoutAmount = completedPayouts.reduce((sum, p) => sum + p.amount, 0)
+    const recentPayouts = payoutRequests.slice(0, 5)
+
+    return {
+      totalBankAccounts: bankDetails.length,
+      verifiedAccounts: verifiedAccounts.length,
+      primaryAccount,
+      availableBalance: balance?.available_balance || 0,
+      pendingBalance: balance?.pending_balance || 0,
+      totalEarned: balance?.total_earned || 0,
+      totalWithdrawn: balance?.total_withdrawn || 0,
+      pendingPayouts: pendingPayouts.length,
+      completedPayouts: completedPayouts.length,
+      totalPayoutAmount,
+      recentPayouts,
+    }
+  }, [bankDetails, payoutRequests, balance])
 
   return {
     bankDetails,
@@ -380,233 +406,42 @@ export function useFinancials(options: UseFinancialsOptions = {}) {
   }
 }
 
+// Specialized hooks for specific use cases
 export function useBankDetails(influencerId?: string) {
-  const [bankDetails, setBankDetails] = useState<BankDetails[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { user } = useAuth()
-  const supabase = createClient()
-  const abortControllerRef = useRef<AbortController | null>(null)
-
-  const fetchBankDetails = useCallback(async () => {
-    try {
-      // Cancel any existing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-      
-      // Create new abort controller
-      abortControllerRef.current = new AbortController()
-      
-      setLoading(true)
-      setError(null)
-
-      const targetId = influencerId || user?.id
-      if (!targetId) {
-        setLoading(false)
-        return
-      }
-
-      // Check if request was aborted before starting
-      if (abortControllerRef.current.signal.aborted) {
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('influencer_bank_details')
-        .select('*')
-        .eq('influencer_id', targetId)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setBankDetails(data || [])
-    } catch (err) {
-      // Don't set error if request was aborted
-      if (err instanceof Error && err.name === 'AbortError') {
-        return
-      }
-      
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch bank details'
-      setError(errorMessage)
-      console.error('Error fetching bank details:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [influencerId, user?.id, supabase])
-
-  useEffect(() => {
-    fetchBankDetails()
-    
-    // Cleanup function
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [fetchBankDetails])
+  const { bankDetails, loading, error, refetch } = useFinancials({ 
+    influencerId,
+    limit: undefined // Get all bank details
+  })
 
   return {
     bankDetails,
     loading,
     error,
-    refetch: fetchBankDetails,
+    refetch,
   }
 }
 
 export function usePayoutRequests(options: UseFinancialsOptions = {}) {
-  const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { user } = useAuth()
-  const supabase = createClient()
-  const abortControllerRef = useRef<AbortController | null>(null)
-
-  const fetchPayoutRequests = useCallback(async () => {
-    try {
-      // Cancel any existing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-      
-      // Create new abort controller
-      abortControllerRef.current = new AbortController()
-      
-      setLoading(true)
-      setError(null)
-
-      const influencerId = options.influencerId || user?.id
-      if (!influencerId) {
-        setLoading(false)
-        return
-      }
-
-      // Check if request was aborted before starting
-      if (abortControllerRef.current.signal.aborted) {
-        return
-      }
-
-      let query = supabase
-        .from('payout_requests')
-        .select(`
-          *,
-          bank_details:influencer_bank_details(
-            bank_name,
-            account_holder_name,
-            account_type
-          )
-        `)
-        .eq('influencer_id', influencerId)
-        .order('created_at', { ascending: false })
-
-      if (options.status) {
-        query = query.eq('status', options.status)
-      }
-
-      if (options.limit) {
-        query = query.limit(options.limit)
-      }
-
-      const { data, error } = await query
-      if (error) throw error
-      setPayoutRequests(data || [])
-    } catch (err) {
-      // Don't set error if request was aborted
-      if (err instanceof Error && err.name === 'AbortError') {
-        return
-      }
-      
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch payout requests'
-      setError(errorMessage)
-      console.error('Error fetching payout requests:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [options.influencerId, options.status, options.limit, user?.id, supabase])
-
-  useEffect(() => {
-    fetchPayoutRequests()
-    
-    // Cleanup function
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [fetchPayoutRequests])
+  const { payoutRequests, loading, error, refetch } = useFinancials(options)
 
   return {
     payoutRequests,
     loading,
     error,
-    refetch: fetchPayoutRequests,
+    refetch,
   }
 }
 
 export function useInfluencerBalance(influencerId?: string) {
-  const [balance, setBalance] = useState<InfluencerBalance | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { user } = useAuth()
-  const supabase = createClient()
-  const abortControllerRef = useRef<AbortController | null>(null)
-
-  const fetchBalance = useCallback(async () => {
-    try {
-      // Cancel any existing request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-      
-      // Create new abort controller
-      abortControllerRef.current = new AbortController()
-      
-      setLoading(true)
-      setError(null)
-
-      const targetId = influencerId || user?.id
-      if (!targetId) {
-        setLoading(false)
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('influencer_balances')
-        .select('*')
-        .eq('influencer_id', targetId)
-        .single()
-        // .abortSignal(abortControllerRef.current.signal)
-
-      if (error && error.code !== 'PGRST116') throw error
-      setBalance(data)
-    } catch (err) {
-      // Don't set error if request was aborted
-      if (err instanceof Error && err.name === 'AbortError') {
-        return
-      }
-      
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch balance'
-      setError(errorMessage)
-      console.error('Error fetching balance:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [influencerId, user?.id, supabase])
-
-  useEffect(() => {
-    fetchBalance()
-    
-    // Cleanup function
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [fetchBalance])
+  const { balance, loading, error, refetch } = useFinancials({ 
+    influencerId,
+    limit: 1 // Only need balance, minimize other queries
+  })
 
   return {
     balance,
     loading,
     error,
-    refetch: fetchBalance,
+    refetch,
   }
 }

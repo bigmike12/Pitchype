@@ -26,6 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { MotionDiv } from "@/components/performance/LazyMotion";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -92,7 +93,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
@@ -377,6 +378,6 @@ export default function RegisterPage() {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </MotionDiv>
   );
 }

@@ -56,7 +56,7 @@ export function useApplications(options: UseApplicationsOptions = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -82,13 +82,13 @@ export function useApplications(options: UseApplicationsOptions = {}) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [options.campaignId, options.influencerId, options.businessId, options.status, options.page, options.limit]);
 
   useEffect(() => {
     fetchApplications();
   }, [options.campaignId, options.influencerId, options.businessId, options.status, options.page, options.limit]);
 
-  const createApplication = async (applicationData: {
+  const createApplication = useCallback(async (applicationData: {
     campaign_id: string;
     proposal: string;
     proposed_rate?: number;
@@ -116,9 +116,9 @@ export function useApplications(options: UseApplicationsOptions = {}) {
     } catch (err) {
       throw err;
     }
-  };
+  }, [fetchApplications]);
 
-  const updateApplication = async (id: string, applicationData: {
+  const updateApplication = useCallback(async (id: string, applicationData: {
     status?: string;
     proposal?: string;
     proposed_rate?: number;
@@ -151,9 +151,9 @@ export function useApplications(options: UseApplicationsOptions = {}) {
     } catch (err) {
       throw err;
     }
-  };
+  }, []);
 
-  const deleteApplication = async (id: string) => {
+  const deleteApplication = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/applications/${id}`, {
         method: 'DELETE',
@@ -169,7 +169,7 @@ export function useApplications(options: UseApplicationsOptions = {}) {
     } catch (err) {
       throw err;
     }
-  };
+  }, []);
 
   return {
     applications,
@@ -187,7 +187,7 @@ export function useApplication(id: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchApplication = async () => {
+  const fetchApplication = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -205,7 +205,7 @@ export function useApplication(id: string) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) {
@@ -213,7 +213,7 @@ export function useApplication(id: string) {
     }
   }, [id]);
 
-  const updateApplication = async (applicationData: {
+  const updateApplication = useCallback(async (applicationData: {
     status?: string;
     proposal?: string;
     proposed_rate?: number;
@@ -240,7 +240,7 @@ export function useApplication(id: string) {
     } catch (err) {
       throw err;
     }
-  };
+  }, [id]);
 
   return {
     application,
@@ -308,7 +308,7 @@ export function useApplicationManagement() {
     }
   }, []);
 
-  const checkApplicationStatus = async (campaignId: string) => {
+  const checkApplicationStatus = useCallback(async (campaignId: string) => {
     setIsCheckingStatus(true);
     try {
       const response = await fetch(`/api/applications?campaign_id=${campaignId}`);
@@ -332,7 +332,7 @@ export function useApplicationManagement() {
     } finally {
       setIsCheckingStatus(false);
     }
-  };
+  }, []);
 
   return {
     banks,

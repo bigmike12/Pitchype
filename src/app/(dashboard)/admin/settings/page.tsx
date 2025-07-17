@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Settings, Shield, Bell, DollarSign, Mail, Globe, Database, Key, Users, Building2, Star, AlertTriangle, CheckCircle, Save, RefreshCw, Upload, Download, Trash2, Plus, Edit, Eye, EyeOff, BarChart3 } from 'lucide-react';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface PlatformSettings {
   general: {
@@ -239,7 +240,7 @@ export default function AdminSettings() {
       </div>
 
       {/* Settings Tabs */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -1043,7 +1044,7 @@ export default function AdminSettings() {
             </Card>
           </TabsContent>
         </Tabs>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

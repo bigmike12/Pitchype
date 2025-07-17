@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ArrowLeft, Search, Filter, MessageSquare, CheckCircle, Clock, XCircle, Eye, Star, Users, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface Application {
   id: string;
@@ -267,7 +268,7 @@ export default function CampaignApplicationsPage() {
         {filteredApplications.map((application, index) => {
           const StatusIcon = statusIcons[application.status];
           return (
-            <motion.div
+            <MotionDiv
               key={application.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -430,7 +431,7 @@ export default function CampaignApplicationsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </MotionDiv>
           );
         })}
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionDiv } from "@/components/performance/LazyMotion";
 import { motion } from "framer-motion";
 
 export default function AuthLayout({
@@ -15,7 +16,7 @@ export default function AuthLayout({
           <div className="absolute inset-0 bg-gradient-to-br from-primary to-green-400" />
           <div className="absolute inset-0 bg-black/10" />
           <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
@@ -49,7 +50,7 @@ export default function AuthLayout({
                   <span className="text-green-100">24/7 support</span>
                 </div>
               </div>
-            </motion.div>
+            </MotionDiv>
           </div>
         </div>
 

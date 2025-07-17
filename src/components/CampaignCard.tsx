@@ -1,5 +1,6 @@
 'use client';
 
+import React, { memo, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,15 +10,15 @@ import { useApplicationStatus } from '@/hooks/useApplicationStatus';
 import { ApplicationDialog } from '@/components/ApplicationDialog';
 import { Calendar, DollarSign, Eye, Heart, Users, MapPin, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { MotionDiv } from './performance/LazyMotion';
 
 interface CampaignCardProps {
   campaign: any;
   onApply?: (campaignId: string) => void;
 }
 
-export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
+const CampaignCard = memo(function CampaignCard({ campaign, onApply }: CampaignCardProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { isFavorited, favoritesCount, viewCount, toggleFavorite, incrementViewCount } = useCampaignActions(campaign.id);
@@ -26,7 +27,7 @@ export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
 
   const hasApplied = applicationStatus.hasApplied;
 
-  const handleApplyClick = () => {
+  const handleApplyClick = useCallback(() => {
     console.log('hasApplied', hasApplied);
     if (hasApplied) return;
     
@@ -35,13 +36,13 @@ export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
     } else {
       setIsApplicationDialogOpen(true);
     }
-  };
+  }, [hasApplied, onApply, campaign.id]);
 
-  const handleApplicationSubmitted = () => {
+  const handleApplicationSubmitted = useCallback(() => {
     // Application status will be updated automatically by the hook
-  };
+  }, []);
 
-  const formatBudget = (campaign: any) => {
+  const formattedBudget = useMemo(() => {
     if (campaign.budget_min && campaign.budget_max) {
       if (campaign.budget_min === campaign.budget_max) {
         return `₦${campaign.budget_min.toLocaleString()}`;
@@ -52,10 +53,10 @@ export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
       return `₦${campaign.budget_min.toLocaleString()}+`;
     }
     return 'Budget TBD';
-  };
+  }, [campaign.budget_min, campaign.budget_max]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const statusColor = useMemo(() => {
+    switch (campaign.status) {
       case 'active': return 'bg-green-100 text-green-800';
       case 'draft': return 'bg-yellow-100 text-yellow-800';
       case 'paused': return 'bg-orange-100 text-orange-800';
@@ -63,10 +64,10 @@ export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
       case 'cancelled': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
+  }, [campaign.status]);
 
   return (
-    <motion.div
+    <MotionDiv
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -100,7 +101,7 @@ export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
                   <span className="ml-1 text-xs">{favoritesCount}</span>
                 )}
               </Button>
-              <Badge className={getStatusColor(campaign.status)}>
+              <Badge className={statusColor}>
                 {campaign.status}
               </Badge>
             </div>
@@ -117,7 +118,7 @@ export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
               <DollarSign className="w-4 h-4 text-green-500" />
               <div>
                 <p className="text-sm text-gray-600">Budget</p>
-                <p className="font-semibold">{formatBudget(campaign)}</p>
+                <p className="font-semibold">{formattedBudget}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -214,6 +215,8 @@ export function CampaignCard({ campaign, onApply }: CampaignCardProps) {
         campaignTitle={campaign.title}
         onApplicationSubmitted={handleApplicationSubmitted}
       />
-    </motion.div>
+    </MotionDiv>
   );
-}
+});
+
+export default CampaignCard;

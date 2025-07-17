@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 interface PayoutRequest {
@@ -44,7 +44,7 @@ export function usePayoutRequests(): UsePayoutRequestsReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchBalance = async () => {
+  const fetchBalance = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch("/api/influencer/balance");
@@ -68,9 +68,9 @@ export function usePayoutRequests(): UsePayoutRequestsReturn {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchPayouts = async () => {
+  const fetchPayouts = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch("/api/payouts");
@@ -87,9 +87,9 @@ export function usePayoutRequests(): UsePayoutRequestsReturn {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchPlatformSettings = async () => {
+  const fetchPlatformSettings = useCallback(async () => {
     try {
       const response = await fetch("/api/platform-settings");
 
@@ -126,9 +126,9 @@ export function usePayoutRequests(): UsePayoutRequestsReturn {
         payout_processing_days: 3,
       });
     }
-  };
+  }, []);
 
-  const requestPayout = async (amount: number) => {
+  const requestPayout = useCallback(async (amount: number) => {
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/payouts", {
@@ -169,7 +169,7 @@ export function usePayoutRequests(): UsePayoutRequestsReturn {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [balance, fetchBalance]);
 
   useEffect(() => {
     fetchBalance();

@@ -35,6 +35,8 @@ export default function BankDetailsPage() {
     stats,
     refetch
   } = useFinancials({ influencerId: user?.id, limit: 5 })
+
+
   
   if (dataLoading) {
     return (
@@ -165,7 +167,20 @@ export default function BankDetailsPage() {
             bankDetails={bankDetails.map(detail => ({
                 ...detail,
                 account_name: detail.account_holder_name,
-                bank_code: detail.routing_number || ''
+                bank_code: detail.routing_number || '',
+                // Ensure all required fields are present
+                id: detail.id,
+                account_holder_name: detail.account_holder_name,
+                bank_name: detail.bank_name,
+                account_number: detail.account_number,
+                routing_number: detail.routing_number || '',
+                account_type: detail.account_type,
+                country: detail.country,
+                currency: detail.currency,
+                is_primary: detail.is_primary,
+                is_verified: detail.is_verified,
+                created_at: detail.created_at,
+                updated_at: detail.updated_at
               }))}
             onSubmit={async (data) => {
               // Handle new bank details submission

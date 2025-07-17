@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { User, Building, CreditCard, Bell, Shield, Globe, Mail, MapPin, Save, Upload, Trash2, Eye, EyeOff } from 'lucide-react';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface BusinessProfile {
   companyName: string;
@@ -275,7 +276,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Tab Content */}
-      <motion.div
+      <MotionDiv
         key={activeTab}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -868,7 +869,7 @@ export default function SettingsPage() {
             </Card>
           </div>
         )}
-      </motion.div>
+      </MotionDiv>
 
       {/* Save Button */}
       {activeTab !== 'billing' && activeTab !== 'security' && (
