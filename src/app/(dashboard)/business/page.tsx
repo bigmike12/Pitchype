@@ -25,6 +25,7 @@ import { useCampaigns } from "@/hooks/useCampaigns";
 import { useApplications } from "@/hooks/useApplications";
 import { useTopPerformers } from "@/hooks/useTopPerformers";
 import { toast } from "sonner";
+import { MotionDiv } from "@/components/performance/LazyMotion";
 
 
 
@@ -182,7 +183,7 @@ export default function BusinessDashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -203,12 +204,12 @@ export default function BusinessDashboard() {
             </Button>
           </Link>
         </div>
-      </motion.div>
+      </MotionDiv>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <motion.div
+          <MotionDiv
             key={stat.title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -228,12 +229,12 @@ export default function BusinessDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         ))}
       </div>
 
       {/* Quick Actions */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
@@ -247,7 +248,7 @@ export default function BusinessDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
                 <Link key={action.title} href={action.href}>
-                  <motion.div
+                  <MotionDiv
                     whileHover={{ y: -2 }}
                     className="p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200 cursor-pointer group"
                   >
@@ -256,17 +257,17 @@ export default function BusinessDashboard() {
                     </div>
                     <h3 className="font-medium text-gray-900 mb-1">{action.title}</h3>
                     <p className="text-sm text-gray-600">{action.description}</p>
-                  </motion.div>
+                  </MotionDiv>
                 </Link>
               ))}
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </MotionDiv>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Campaigns */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
@@ -335,10 +336,10 @@ export default function BusinessDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
         {/* Top Influencers */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.6 }}
@@ -408,7 +409,7 @@ export default function BusinessDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
     </div>
   );

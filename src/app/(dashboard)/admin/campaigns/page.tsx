@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, MoreHorizontal, Eye, Edit, Ban, CheckCircle, XCircle, Target, DollarSign, Calendar, Users, Building2, Star, AlertTriangle, Clock, TrendingUp, Download, Plus, Flag, MessageSquare, BarChart3 } from 'lucide-react';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface Campaign {
   id: string;
@@ -385,7 +386,7 @@ export default function AdminCampaigns() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -399,9 +400,9 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -415,9 +416,9 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -431,9 +432,9 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -447,9 +448,9 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -463,9 +464,9 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -479,9 +480,9 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
@@ -495,9 +496,9 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
@@ -511,7 +512,7 @@ export default function AdminCampaigns() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Filters */}
@@ -572,7 +573,7 @@ export default function AdminCampaigns() {
       </Card>
 
       {/* Campaigns Table */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9 }}
@@ -716,7 +717,7 @@ export default function AdminCampaigns() {
             </Table>
           </CardContent>
         </Card>
-      </motion.div>
+      </MotionDiv>
 
       {/* Campaign Details Dialog */}
       <Dialog open={isCampaignDialogOpen} onOpenChange={setIsCampaignDialogOpen}>

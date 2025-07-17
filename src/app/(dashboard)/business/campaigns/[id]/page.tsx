@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCampaign } from '@/hooks/useCampaigns';
 import { useApplications } from '@/hooks/useApplications';
 import { Database } from '@/types/database';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 type Campaign = Database['public']['Tables']['campaigns']['Row'] & {
   business?: {
@@ -379,7 +380,7 @@ export default function CampaignDetailsPage() {
               const handle = influencer ? 'user' : 'unknown'; // Social handles not available in current schema
               
               return (
-                <motion.div
+                <MotionDiv
                   key={application.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -424,7 +425,7 @@ export default function CampaignDetailsPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </MotionDiv>
               );
             })}
           </div>

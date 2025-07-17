@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Database } from "@/types/database";
 import { createClient } from "@/lib/client";
 
@@ -36,7 +36,7 @@ export function useCampaigns(options: UseCampaignsOptions = {}) {
   
   const supabase = createClient();
 
-  const fetchCampaigns = async () => {
+  const fetchCampaigns = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -62,7 +62,7 @@ export function useCampaigns(options: UseCampaignsOptions = {}) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [options.status, options.businessId, options.page, options.limit]);
 
   useEffect(() => {
     fetchCampaigns();

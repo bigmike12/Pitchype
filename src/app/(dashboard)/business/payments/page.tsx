@@ -17,6 +17,7 @@ import { usePayments } from '@/hooks/usePayments';
 
 // Use the Payment interface from the hook
 import { Payment } from '@/hooks/usePayments';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 // Extended interface for UI display
 interface PaymentDisplay extends Payment {
@@ -357,7 +358,7 @@ export default function PaymentsPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -373,9 +374,9 @@ export default function PaymentsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -391,9 +392,9 @@ export default function PaymentsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -414,9 +415,9 @@ export default function PaymentsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -433,7 +434,7 @@ export default function PaymentsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Filters */}
@@ -497,7 +498,7 @@ export default function PaymentsPage() {
           const MethodIcon = methodIcons[paymentDisplay.method as keyof typeof methodIcons] || CreditCard;
           
           return (
-            <motion.div
+            <MotionDiv
               key={payment.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -659,7 +660,7 @@ export default function PaymentsPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </MotionDiv>
           );
         })}
       </div>

@@ -31,6 +31,7 @@ import { useCampaigns } from "@/hooks/useCampaigns";
 import { useApplications } from "@/hooks/useApplications";
 import { useRecentEarnings } from "@/hooks/usePayments";
 import { toast } from "sonner";
+import { MotionDiv } from "@/components/performance/LazyMotion";
 
 const getStats = (applications: any[]) => [
   {
@@ -227,7 +228,7 @@ export default function InfluencerDashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -248,12 +249,12 @@ export default function InfluencerDashboard() {
             </Button>
           </Link>
         </div>
-      </motion.div>
+      </MotionDiv>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <motion.div
+          <MotionDiv
             key={stat.title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -279,13 +280,13 @@ export default function InfluencerDashboard() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Active Campaigns */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
@@ -386,10 +387,10 @@ export default function InfluencerDashboard() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
 
         {/* Recent Earnings */}
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
@@ -462,11 +463,11 @@ export default function InfluencerDashboard() {
               </Link>
             </CardContent>
           </Card>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       {/* Recommended Campaigns */}
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
@@ -491,7 +492,7 @@ export default function InfluencerDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {campaigns.slice(0, 6).map((campaign) => (
-                <motion.div
+                <MotionDiv
                   key={campaign.id}
                   whileHover={{ y: -2 }}
                   className="p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200 cursor-pointer group"
@@ -543,12 +544,12 @@ export default function InfluencerDashboard() {
                   >
                     {myApplications.some(app => app.campaign_id === campaign.id) ? 'Applied' : 'Apply Now'}
                   </Button>
-                </motion.div>
+                </MotionDiv>
               ))}
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 }

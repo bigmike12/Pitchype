@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCampaigns } from '@/hooks/useCampaigns';
 
 import { Search, Filter, Briefcase } from 'lucide-react';
-import { CampaignCard } from '@/components/CampaignCard';
+import CampaignCard from '@/components/CampaignCard';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 
 
@@ -111,7 +112,7 @@ export default function InfluencerCampaignsPage() {
         </div>
 
         {showFilters && (
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -177,21 +178,21 @@ export default function InfluencerCampaignsPage() {
                 </SelectContent>
               </Select>
             </div>
-          </motion.div>
+          </MotionDiv>
         )}
       </div>
 
       {/* Campaign Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {sortedCampaigns.map((campaign, index) => (
-          <motion.div
+          <MotionDiv
             key={campaign.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
             <CampaignCard campaign={campaign} />
-          </motion.div>
+          </MotionDiv>
         ))}
       </div>
 

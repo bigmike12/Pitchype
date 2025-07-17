@@ -13,6 +13,7 @@ import { useApplications } from '@/hooks/useApplications';
 import { useAuth } from '@/contexts/AuthContext';
 import { ApplicationApproval } from '@/components/business/ApplicationApproval';
 import { toast } from 'sonner';
+import { MotionDiv } from '@/components/performance/LazyMotion';
 
 interface Application {
   id: string;
@@ -390,7 +391,7 @@ export default function ApplicationsPage() {
       <div className="space-y-4">
         {filteredApplications.map((application, index) => {
           return (
-            <motion.div
+            <MotionDiv
               key={application.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -400,7 +401,7 @@ export default function ApplicationsPage() {
                 application={application as any}
                 onStatusUpdate={handleUpdateStatus}
               />
-            </motion.div>
+            </MotionDiv>
           );
         })}
       </div>

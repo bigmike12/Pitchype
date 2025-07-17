@@ -46,6 +46,7 @@ import {
   Video,
   Info,
 } from "lucide-react";
+import { MotionDiv } from "@/components/performance/LazyMotion";
 
 // Message interface
 interface Message {
@@ -376,7 +377,7 @@ export default function MessagesPage() {
             </div>
           ) : (
             filteredConversations.map((conversation, index) => (
-              <motion.div
+              <MotionDiv
                 key={conversation.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -457,7 +458,7 @@ export default function MessagesPage() {
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </MotionDiv>
             ))
           )}
         </div>
@@ -585,7 +586,7 @@ export default function MessagesPage() {
                 </div>
               ) : (
                 conversationMessages.map((message, index) => (
-                  <motion.div
+                  <MotionDiv
                     key={message.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -645,7 +646,7 @@ export default function MessagesPage() {
                         )}
                       </div>
                     </div>
-                  </motion.div>
+                  </MotionDiv>
                 ))
               )}
               <div ref={messagesEndRef} />
@@ -699,7 +700,7 @@ export default function MessagesPage() {
 
       {/* Conversation Info Sidebar */}
       {showConversationInfo && selectedConversation && (
-        <motion.div
+        <MotionDiv
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
@@ -783,7 +784,7 @@ export default function MessagesPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </MotionDiv>
       )}
     </div>
   );

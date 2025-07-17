@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Database } from '@/types/database';
 
 type Message = Database['public']['Tables']['messages']['Row'] & {
@@ -21,7 +21,7 @@ export function useMessages(options: UseMessagesOptions) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -44,7 +44,7 @@ export function useMessages(options: UseMessagesOptions) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [options.applicationId, options.page, options.limit]);
 
   useEffect(() => {
     if (options.applicationId && options.applicationId !== "skip" && options.applicationId.trim() !== "") {
@@ -55,7 +55,7 @@ export function useMessages(options: UseMessagesOptions) {
     }
   }, [options.applicationId, options.page, options.limit]);
 
-  const sendMessage = async (messageData: {
+  const sendMessage = useCallback(async (messageData: {
     content: string;
     message_type?: string;
     attachments?: any[];
@@ -84,9 +84,9 @@ export function useMessages(options: UseMessagesOptions) {
     } catch (err) {
       throw err;
     }
-  };
+  }, [options.applicationId]);
 
-  const markAsRead = async (messageIds: string[]) => {
+  const markAsRead = useCallback(async (messageIds: string[]) => {
     try {
       // Update local state immediately for better UX
       setMessages(prev => 
@@ -102,18 +102,18 @@ export function useMessages(options: UseMessagesOptions) {
     } catch (err) {
       console.error('Failed to mark messages as read:', err);
     }
-  };
+  }, []);
 
-  const addMessage = (message: Message) => {
+  const addMessage = useCallback((message: Message) => {
     setMessages(prev => {
       // Check if message already exists to avoid duplicates
       const exists = prev.some(m => m.id === message.id);
       if (exists) return prev;
       return [...prev, message];
     });
-  };
+  }, []);
 
-  const updateMessage = (messageId: string, updates: Partial<Message>) => {
+  const updateMessage = useCallback((messageId: string, updates: Partial<Message>) => {
     setMessages(prev => 
       prev.map(message => 
         message.id === messageId 
@@ -121,7 +121,7 @@ export function useMessages(options: UseMessagesOptions) {
           : message
       )
     );
-  };
+  }, []);
 
   return {
     messages,

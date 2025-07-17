@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { LazyMotion, domAnimation, m } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -233,14 +233,15 @@ export default function EarningsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <LazyMotion features={domAnimation}>
+      <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Earnings</h1>
           <p className="text-gray-600 mt-1">Track your payments and financial performance</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 md:ml-auto">
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
             <SelectTrigger className="w-40">
               <SelectValue />
@@ -317,7 +318,7 @@ export default function EarningsPage() {
 
       {/* Balance and Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -334,9 +335,9 @@ export default function EarningsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -353,9 +354,9 @@ export default function EarningsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -372,9 +373,9 @@ export default function EarningsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -391,9 +392,9 @@ export default function EarningsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -410,7 +411,7 @@ export default function EarningsPage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Search and Filters */}
@@ -436,7 +437,7 @@ export default function EarningsPage() {
         </div>
 
         {showFilters && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -499,7 +500,7 @@ export default function EarningsPage() {
                 Clear Filters
               </Button>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </div>
 
@@ -519,7 +520,7 @@ export default function EarningsPage() {
             const campaignId = earning.campaign?.id || earning.application?.campaign?.id || earning.application_id;
             
             return (
-              <motion.div
+              <m.div
                 key={earning.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -599,7 +600,7 @@ export default function EarningsPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </m.div>
             );
           })
         )}
@@ -611,7 +612,7 @@ export default function EarningsPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Payout History</h2>
           <div className="space-y-4">
             {payouts.map((payout, index) => (
-              <motion.div
+              <m.div
                 key={payout.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -648,11 +649,12 @@ export default function EarningsPage() {
                     )}
                   </CardContent>
                 </Card>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </LazyMotion>
   );
 }
